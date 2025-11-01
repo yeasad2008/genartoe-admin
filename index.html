@@ -3,141 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অ্যাডমিন প্যানেল</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>অ্যাডমিন প্যানেল - পোস্ট ম্যানেজার</title>
     <style>
-        body { font-family: 'Noto Sans Bengali', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; text-align: center; }
-        .add-post-section { margin-bottom: 30px; }
-        textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
-        .btn { border: none; padding: 12px 20px; font-size: 16px; font-weight: 500; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; color: white; }
-        .btn-add { background-color: #007bff; display: block; width: 100%; margin-top: 10px; }
-        .post-list { margin-top: 20px; }
-        .post-item { background: #f9f9f9; border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .post-content { flex-grow: 1; margin-right: 15px; white-space: pre-wrap; word-break: break-word; }
-        .post-actions .btn { margin-left: 10px; }
-        .btn-edit { background-color: #ffc107; }
-        .btn-delete { background-color: #dc3545; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
-        .modal-content textarea { height: 150px; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; }
+        .container { max-width: 900px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; margin: -20px -20px 30px -20px; }
+        header h1 { font-size: 2.5em; font-weight: 300; }
+        .form-section h2, .posts-section h2 { margin-bottom: 20px; color: #444; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; resize: vertical; min-height: 150px; }
+        .btn { display: inline-block; background: #667eea; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background 0.3s ease; }
+        .btn:hover { background: #5a67d8; }
+        .btn-edit { background: #48bb78; margin-right: 10px; }
+        .btn-edit:hover { background: #38a169; }
+        .btn-delete { background: #f56565; }
+        .btn-delete:hover { background: #e53e3e; }
+        .post-item { background: #f9f9f9; border: 1px solid #eee; padding: 20px; margin-bottom: 15px; border-radius: 5px; position: relative; }
+        .post-item p { white-space: pre-wrap; word-wrap: break-word; font-size: 1.1em; color: #444; }
+        .post-actions { margin-top: 15px; }
+        #message { padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center; display: none; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>অ্যাডমিন প্যানেল</h1>
-        <div class="add-post-section">
-            <h2>নতুন পোস্ট যোগ করুন</h2>
-            <textarea id="postContent" placeholder="এখানে নতুন পোস্ট লিখুন..."></textarea>
-            <button class="btn btn-add" onclick="addPost()">পোস্ট যোগ করুন</button>
-        </div>
-        <hr>
-        <h2>সকল পোস্ট ম্যানেজ করুন</h2>
-        <div id="postList" class="post-list">পোস্ট লোড হচ্ছে...</div>
+        <header><h1>অ্যাডমিন প্যানেল</h1></header>
+        <div id="message"></div>
+        <section class="form-section">
+            <h2>নতুন পোস্ট যুক্ত করুন / এডিট করুন</h2>
+            <form id="postForm">
+                <input type="hidden" id="postId" value="">
+                <div class="form-group">
+                    <label for="postContent">পোস্টের বিষয়বস্তু *</label>
+                    <textarea id="postContent" required></textarea>
+                </div>
+                <button type="submit" class="btn" id="submitBtn">পোস্ট যুক্ত করুন</button>
+            </form>
+        </section>
+        <section class="posts-section">
+            <h2>সকল পোস্ট</h2>
+            <div id="postList"></div>
+        </section>
     </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3>পোস্ট এডিট করুন</h3>
-            <textarea id="editPostContent"></textarea>
-            <button class="btn btn-add" id="saveChangesBtn">পরিবর্তন সেভ করুন</button>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAjcAv64YFJndEMptOWfGTmR5LG-8ymSdE",
-            authDomain: "genaretor.firebaseapp.com",
-            databaseURL: "https://genaretor-default-rtdb.firebaseio.com",
-            projectId: "genaretor",
-            storageBucket: "genaretor.appspot.com",
-            messagingSenderId: "44288000929",
-            appId: "1:44288000929:web:06e297c4fae8ec22eb81e0"
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const database = firebase.database();
-        const postsRef = database.ref('posts');
-        const postListDiv = document.getElementById('postList');
-        const modal = document.getElementById('editModal');
-
-        function addPost() {
-            const postContent = document.getElementById('postContent').value;
-            if (postContent.trim() === "") {
-                alert("দয়া করে কিছু লিখুন।");
-                return;
-            }
-            postsRef.push({ content: postContent, timestamp: Date.now() })
-                .then(() => {
-                    document.getElementById('postContent').value = '';
-                    alert("পোস্ট যোগ করা হয়েছে!");
-                });
-        }
-
-        postsRef.on('value', (snapshot) => {
-            postListDiv.innerHTML = '';
-            const data = snapshot.val();
-            if (data) {
-                Object.entries(data).forEach(([key, value]) => {
-                    const postItem = document.createElement('div');
-                    postItem.className = 'post-item';
-                    postItem.innerHTML = `
-                        <div class="post-content">${value.content}</div>
-                        <div class="post-actions">
-                            <button class="btn btn-edit" onclick="openEditModal('${key}', \`${value.content}\`)">এডিট</button>
-                            <button class="btn btn-delete" onclick="deletePost('${key}')">ডিলেট</button>
-                        </div>
-                    `;
-                    postListDiv.appendChild(postItem);
-                });
-            } else {
-                postListDiv.innerHTML = "কোনো পোস্ট পাওয়া যায়নি।";
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const postForm = document.getElementById('postForm'); const postList = document.getElementById('postList'); const postContentInput = document.getElementById('postContent'); const postIdInput = document.getElementById('postId'); const submitBtn = document.getElementById('submitBtn'); const messageDiv = document.getElementById('message');
+            const showMessage = (text, type) => { messageDiv.textContent = text; messageDiv.className = type; messageDiv.style.display = 'block'; setTimeout(() => { messageDiv.style.display = 'none'; }, 3000); };
+            const getPosts = () => { let posts = localStorage.getItem('posts'); return posts ? JSON.parse(posts) : []; };
+            const savePosts = (posts) => { localStorage.setItem('posts', JSON.stringify(posts)); };
+            const displayPosts = () => { const posts = getPosts(); postList.innerHTML = ''; if (posts.length === 0) { postList.innerHTML = '<p>কোনো পোস্ট পাওয়া যায়নি।</p>'; return; } posts.forEach(post => { const postDiv = document.createElement('div'); postDiv.className = 'post-item'; postDiv.innerHTML = `<p>${post.content}</p><div class="post-actions"><button class="btn btn-edit" onclick="editPost('${post.id}')">এডিট করুন</button><button class="btn btn-delete" onclick="deletePost('${post.id}')">ডিলিট করুন</button></div>`; postList.appendChild(postDiv); }); };
+            postForm.addEventListener('submit', (e) => { e.preventDefault(); const content = postContentInput.value; const postId = postIdInput.value; let posts = getPosts(); if (postId) { const postIndex = posts.findIndex(p => p.id === postId); if (postIndex > -1) { posts[postIndex].content = content; showMessage('পোস্ট সফলভাবে আপডেট হয়েছে!', 'success'); } } else { const newPost = { id: Date.now().toString(), content: content }; posts.push(newPost); showMessage('পোস্ট সফলভাবে যুক্ত হয়েছে!', 'success'); } savePosts(posts); displayPosts(); postForm.reset(); postIdInput.value = ''; submitBtn.textContent = 'পোস্ট যুক্ত করুন'; });
+            window.editPost = (id) => { const posts = getPosts(); const post = posts.find(p => p.id === id); if (post) { postContentInput.value = post.content; postIdInput.value = post.id; submitBtn.textContent = 'পোস্ট আপডেট করুন'; window.scrollTo(0, 0); } };
+            window.deletePost = (id) => { if (confirm('আপনি কি নিশ্চিত যে আপনি এই পোস্টটি ডিলিট করতে চান?')) { let posts = getPosts(); posts = posts.filter(p => p.id !== id); savePosts(posts); displayPosts(); showMessage('পোস্ট সফলভাবে ডিলিট হয়েছে!', 'success'); } };
+            displayPosts();
         });
-
-        function deletePost(key) {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই পোস্টটি ডিলেট করতে চান?")) {
-                postsRef.child(key).remove();
-            }
-        }
-
-        function openEditModal(key, content) {
-            document.getElementById('editPostContent').value = content;
-            document.getElementById('saveChangesBtn').onclick = () => saveChanges(key);
-            modal.style.display = 'block';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        function saveChanges(key) {
-            const newContent = document.getElementById('editPostContent').value;
-            if (newContent.trim() === "") {
-                alert("পোস্ট খালি রাখা যাবে না।");
-                return;
-            }
-            postsRef.child(key).update({ content: newContent })
-                .then(() => {
-                    closeModal();
-                    alert("পোস্ট সফলভাবে আপডেট করা হয়েছে!");
-                });
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
     </script>
 </body>
 </html>
